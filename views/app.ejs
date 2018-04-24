@@ -1,0 +1,724 @@
+<% include header.ejs %>
+<link href='/css/style.css', rel='stylesheet', type='text/css'>
+<link href="/icheck/icheck.css" rel="stylesheet">
+<style type="text/css">
+  .type-li{
+    padding: 10px 10px;
+    background-color: white;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+  }
+  .type-li:first-child{
+    border-top: 1px solid #eee;
+  }
+  .icon-x{
+    float: right;
+    margin-right: 10px;
+    margin-top: 10px;
+    color: red;
+    cursor: pointer;
+  }
+  .btn-content{
+    text-align: center;
+      margin-top: 50px;
+  }
+  .btn-content .btn{
+      width: 150px;
+      margin:0 20px;
+  }
+  .apimanage_add.apiactive a{
+    color: white !important;
+  }
+  .sec-title .dropdown-text{
+    padding: 20px;
+    font-size: 20px;
+  }
+  input {
+    width: 100%;
+    border: 0;
+    height: 100%;
+    padding: 5px 10px;
+    border-radius: 5px;
+  }
+  .title.bold{
+    cursor: pointer;
+  }
+  .title.bold.apiactive{
+    color: #609be3 !important;
+  }
+  .search-li{
+    margin-top: 10px;
+  }
+  .select-box button{
+    position: relative;
+    bottom: 2px;
+    padding: 8px 12px;
+  }
+</style>
+<nav class="navbar navbar-custom navbar-fixed-top top-nav-collapse" role="navigation" id="title">
+  <div class="navbar-header page-scroll">
+    <a href="/">
+      <div class="logo">APIBUILD</div>
+    </a>
+    <div class="icon">
+      <!-- <label class="js-down"><a href="" target="_blank">下载JS</a></label> -->
+      <label class="icon-item"><a href="#intro">API介绍</a></label>
+      <label class="icon-item apimanage_add"><a href="#apimanage_add">添加表</a></label>
+    </div>
+  </div>
+</nav>
+<body>
+
+<div class="content">
+    <div class="api-container">
+        <div class="col-sm-2 api-menu">
+            <ul class="menu">
+              <div id="" class="layui-layer-content layui-layer-loading0"></div></div>
+            </ul>
+        </div>
+        <div class="col-sm-10 api-content">
+            <section class="sec-content apiactive" id="intro" style="display:block">
+            <h1 class="sec-title">项目介绍</h1>
+            <input type="hidden" id="app_name">
+            <!-- <p class="color-o size-16 js-link"></p> -->
+            </section>
+            <section class="sec-content" id="apimanage_add">
+                <input type="hidden" name="table_id" id="table-id">
+                <p>表名:</p>
+                <div class="code-content">
+                    <input type="text" name="table_name" id="table-name" placeholder="获取XX信息">
+                    <div class="help-block">只能包含字母、数字、下划线，必须以字母开头</div>
+                </div>
+                <p>描述:</p>
+                <div class="code-content">
+                    <input type="text" name="table_desc" id="table-desc" placeholder="获取XX的XX详情">
+                </div>
+                <p>请求参数<span class="color-r">（参数名只只能包含字母、数字、下划线）</span></p>
+                <div class="code-content">
+                    <div class="parameter-list">
+                        <div class="parameter-li">
+                            <input type="text" class="para-name"  style="width:300px;"  placeholder="参数名">
+                            <input type="text" class="para-desc"  style="width:300px;"  placeholder="参数描述">
+                            <div class="check">
+                                <input type="checkbox" class="para-must"  checked>
+                                <label for="input-1">必须参数</label>
+                            </div>
+                            <div class="check ml-10">
+                                <input type="checkbox" class="para-number"  checked>
+                                <label for="input-2">是否是Number型</label>
+                            </div>
+                            <div class="iconfont icon-x"></div>
+                        </div>
+                    </div>
+                    <div class="mt-20">
+                        <button type="button" class="btn btn-primary add">添加</button>
+                    </div>
+                </div>
+                <!-- <p>调用示例</p>
+                <div class="code-content">
+                    <input type="text" id="api-demo" placeholder="http://moreapi.leanapp.cn/classtb/getProData">
+                </div> -->
+
+                <button type="button" class="btn btn-primary btn-lg mt-50 btn-block create">创建</button>
+                <button type="button" class="btn btn-danger btn-lg btn-block btn-delete" style="display:none;margin-top:10px">删除该表</button>
+            </section>
+        </div>
+    </div>
+</div>
+
+<% include footer.ejs %>
+<script type="text/javascript" src="/icheck/jquery.icheck.min.js"></script>
+<script>
+  //添加参数
+  $(".add").on("click",function () {
+        var li = '<div class="parameter-li mt-20">'+
+                '<input type="text" class="para-name"  style="width:200px;margin-right: 6px" placeholder="参数名">'+
+                '<input type="text" class="para-desc"  style="width:200px;margin-right: 6px" placeholder="参数描述">'+
+                '<div class="check">'+
+                '<input type="checkbox" class="para-must"  checked>'+
+                '<label for="input-1">必须参数</label>'+
+                '</div>'+
+                '<div class="check ml-10">'+
+                '<input type="checkbox" class="para-number">'+
+                '<label for="input-2">是否是Number型</label>'+
+                '</div>'+
+                '<div class="iconfont icon-x"></div>'+
+                '</div>';
+        $(".parameter-list").append(li);
+        $('.check input').iCheck({
+            checkboxClass: 'icheckbox_square-blue',
+            radioClass: 'iradio-blue'
+        });
+  })
+
+  $("input[name='table_name']").on("input change",function(){
+    var patt1=new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
+    //判断项目名称是否正确
+    if(!patt1.test($(this).val())){
+      $(".help-block").addClass("error");
+      $(this).addClass("error");
+      return;
+    }else{
+      $(".help-block").removeClass("error");
+      $(this).removeClass("error");
+    }
+  })
+
+  $(document).on("click",".icon-x",function(){
+    $(this).parent().remove();
+  })
+
+  //创建初始化
+  $(".apimanage_add").on("click",function(){
+    //初始化
+    //设置id
+    $("#table-id").val("");
+    $(".btn-delete").hide();
+    //设置为更改
+    $(".create").text("创建");
+    //表名
+    $("#table-name").val("");
+    $("#table-name").removeAttr("disabled");
+    $("#table-desc").val("");
+    $(".parameter-list").empty();
+    var li = '<div class="parameter-li mt-20">'+
+                '<input type="text" class="para-name"  style="width:200px;margin-right: 6px" placeholder="参数名">'+
+                '<input type="text" class="para-desc"  style="width:200px;margin-right: 6px" placeholder="参数描述">'+
+                '<div class="check">'+
+                '<input type="checkbox" class="para-must"  checked>'+
+                '<label for="input-1">必须参数</label>'+
+                '</div>'+
+                '<div class="check ml-10">'+
+                '<input type="checkbox" class="para-number">'+
+                '<label for="input-2">是否是Number型</label>'+
+                '</div>'+
+                '<div class="iconfont icon-x"></div>'+
+                '</div>';
+    $(".parameter-list").append(li);
+    $('.check input').iCheck({
+      checkboxClass: 'icheckbox_square-blue',
+      radioClass: 'iradio-blue'
+    });
+  })
+
+  //点击创建生成
+  $(".create").on("click",function () {
+      //获取API名称
+      var table_id   = $("#table-id").val();
+      //数据表名
+      var table_name = $("#table-name").val();
+      //描述:
+      var table_desc = $("#table-desc").val();
+      //表参数
+      var table_para = [];
+      $(".parameter-li").each(function (i,v) {
+          if($(this).children(".para-name").val()){
+            var table_para_li = {
+              para_name:$(this).children(".para-name").val(),
+              para_desc:$(this).children(".para-desc").val(),
+              para_must:$(this).find(".para-must").parent().hasClass("checked"),
+              para_number:$(this).find(".para-number").parent().hasClass("checked")
+            }
+            table_para.push(table_para_li);
+          }
+      })
+
+      for(var i = 0 ; i < table_para.length; i++){
+        var patt2=new RegExp("^[a-zA-Z0-9_]*$");
+        //判断项目名称是否正确
+        if(!patt2.test(table_para[i].para_name)){
+          layer.msg("参数名(\""+table_para[i].para_name+"\")格式出错", {icon: 2});
+          return;
+        }
+      }
+
+      var patt1=new RegExp("^[a-zA-Z][a-zA-Z0-9_]*$");
+      //判断项目名称是否正确
+      if(!patt1.test(table_name)){
+        $(".help-block").addClass("error");
+        $("#table-name").addClass("error");
+        return;
+      }else{
+        $(".help-block").removeClass("error");
+        $("#table-name").removeClass("error");
+      }
+
+      var data = {
+          table_id      : table_id,
+          app_id        : id,
+          table_name    : table_name,
+          table_desc    : table_desc,
+          table_para    : JSON.stringify(table_para)
+      }
+      console.log(data);
+      //获取项目列表
+      if(table_id){
+        //更改
+        var url = "/api/edit";
+      }else{
+        //创建
+        var url = "/api/add";
+        data.table_name = $("#app_name").val()+"_"+table_name;
+      }
+
+      layer.load(0, {shade: false});
+
+      var type = "GET";
+      sendQuery(url,type,data,{
+          success:function(result){
+              //获取当前项目名称
+              var data = result.data;
+              layer.closeAll();
+              layer.msg('操作成功', {icon: 1});
+              setTimeout(function(){
+                window.location.reload();
+              }, 500);
+          },
+          error:function(error){
+            layer.closeAll();
+            layer.msg(error.message, {icon: 2});
+          }
+      })
+  })
+
+  var id = '';
+  //项目data
+  var apiList = [];
+  //请求该api接口
+  $(function(){
+    $('.check input').iCheck({
+      checkboxClass: 'icheckbox_square-blue',
+      radioClass: 'iradio-blue'
+    });
+
+    //获取当前链接
+    // var appid =
+    var search = location.search;
+    if(search){
+      id = search.split("?appid=")[1];
+      $(".js-down a").attr("href","/api/link?app_id="+id+"&type=down");
+      //生成js引入链接
+      $(".js-link").html('&lt;script type="text/javascript" src="http://apimanage.leanapp.cn/api/link?app_id='+id+'"> &lt;/script>');
+    }else{
+      location.href="/";
+    }
+    console.log(id);
+
+
+     if(id){
+         //获取项目列表
+         var data = {id:id};
+         var url = "/app/detail";
+         var type = "GET";
+         sendQuery(url,type,data,{
+             success:function(result){
+                 //获取当前项目名称
+                 var data = result.data;
+                 $("#intro").append("<p>"+data.app_desc+"</p>");
+                 $("#app_name").val(data.app_name);
+             },
+             error:function(error){
+                 // alert(error.message);
+                 layer.msg(error.message, {icon: 2});
+                 console.log(error);
+             }
+         })
+
+         //获取项目所有的api
+         var data = {app_id:id};
+         var url = "/api/list";
+         var type = "GET";
+         sendQuery(url,type,data,{
+             success:function(result){
+                 //获取当前项目名称
+                 var data = result.data;
+                 apiList = data;
+                 console.log(data);
+                 //遍历数据
+                 formateData(data);
+             },
+             error:function(error){
+                 // alert(error.message);
+                 layer.msg(error.message, {icon: 2});
+                 console.log(error);
+             }
+         })
+     }
+  })
+
+  function formateData(data) {
+      
+      var menu = '';
+      for(var i = 0; i < data.length; i++){
+        var title = '<li class="title bold" data-id="'+data[i].objectId+'">'+data[i].table_name+'</li>';
+        var api = '<li class="menu-li '+data[i].objectId+'add"><a href="#'+data[i].objectId+'add">add</a></li>'+
+                  '<li class="menu-li '+data[i].objectId+'delete"><a href="#'+data[i].objectId+'delete">delete</a></li>'+
+                  '<li class="menu-li '+data[i].objectId+'edit"><a href="#'+data[i].objectId+'edit">edit</a></li>'+
+                  '<li class="menu-li '+data[i].objectId+'list"><a href="#'+data[i].objectId+'list">list</a></li>'+
+                  '<li class="menu-li '+data[i].objectId+'detail"><a href="#'+data[i].objectId+'detail">detail</a></li>';
+        title+=api;
+        menu += title;
+
+        //判断是否有参数值
+        var paraContentData = ''
+        for(var k = 0; k < data[i].table_para.length; k++){
+          var paraData = data[i].table_para[k];
+            paraContentData+='<p>'+
+                          paraData.para_name+
+                          '<span class="ml-10 desc">[ '+
+                          paraData.para_desc+
+                          '</span>'+
+                          ' ]'+
+                          '<input type="text" name="'+paraData.para_name+'" class="para-remark ml-10"  style="width:150px;"  placeholder="测试值">'+
+                          ' <span class="ml-10 color-r">'+
+                          (paraData.para_must ? "必须":"")+
+                          '</span></p>';
+        }
+        var paraContent = '<p>请求参数</p><div class="code-content">'+paraContentData+'</div>';
+
+      //add api 内容
+      var section = '<section class="sec-content" id="'+data[i].objectId+'add">'+
+        '<h1 class="sec-title">add</h1>'+
+        '<p>URI:</p>'+
+        '<div class="code-content api-url">'+location.origin+'/'+data[i].table_name+'/add</div>'+
+        '<p>HTTP请求方式</p><div class="code-content api-request">POST</div>'+
+         paraContent+
+        '<p><span class="btn btn-success make">测试接口</span></p>'+
+        '<div class="code-content api-result"></div>'+
+        '<div class="btn-content" data-id="'+data[i].objectId+'">'+
+        '</div>'+
+        '</section>';
+        $(".api-content").append(section);
+
+      //delete api 内容
+      var paraContent = '<p>请求参数</p><div class="code-content"><p>id<span class="ml-10 desc">[ 数据ObjectId</span> ]<input type="text" class="para-remark ml-10" name="id" style="width:150px;" placeholder="测试值"> <span class="ml-10 color-r">必须</span></p></div>';
+      var section = '<section class="sec-content" id="'+data[i].objectId+'delete">'+
+        '<h1 class="sec-title">delete</h1>'+
+        '<p>URI:</p>'+
+        '<div class="code-content api-url">'+location.origin+'/'+data[i].table_name+'/delete</div>'+
+        '<p>HTTP请求方式</p><div class="code-content api-request">GET</div>'+
+        paraContent+
+        '<p><span class="btn btn-success make">测试接口</span></p>'+
+        '<div class="code-content api-result"></div>'+
+        '<div class="btn-content" data-id="'+data[i].objectId+'">'+
+        '</div>'+
+        '</section>';
+        $(".api-content").append(section);
+
+        //edit api 内容
+        //判断是否有参数值
+        var paraContentData = ''
+        for(var k = 0; k < data[i].table_para.length; k++){
+          var paraData = data[i].table_para[k];
+            paraContentData+='<p>'+
+                          paraData.para_name+
+                          '<span class="ml-10 desc">[ '+
+                          paraData.para_desc+
+                          '</span>'+
+                          ' ]'+
+                          '<input type="text" name="'+paraData.para_name+'" class="para-remark ml-10"  style="width:150px;"  placeholder="测试值">'+
+                          ' </p>';
+        }
+        var editParaContent = '<p>id<span class="ml-10 desc">[ 数据ObjectId</span> ]<input type="text" class="para-remark ml-10" name="id" style="width:150px;" placeholder="测试值"> <span class="ml-10 color-r">必须</span></p>'+paraContentData;
+
+        paraContent = '<p>请求参数</p><div class="code-content">'+editParaContent+'</div>';
+        var section = '<section class="sec-content" id="'+data[i].objectId+'edit">'+
+        '<h1 class="sec-title">edit</h1>'+
+        '<p>URI:</p>'+
+        '<div class="code-content api-url">'+location.origin+'/'+data[i].table_name+'/edit</div>'+
+        '<p>HTTP请求方式</p><div class="code-content api-request">POST</div>'+
+        paraContent+
+        '<p><span class="btn btn-success make">测试接口</span></p>'+
+        '<div class="code-content api-result"></div>'+
+        '<div class="btn-content" data-id="'+data[i].objectId+'">'+
+        '</div>'+
+        '</section>';
+        $(".api-content").append(section);
+
+        var selectText = '<div class="select-box" style="display:inline-block;margin:0 15px;">'+
+                         '<div class="btn-group">'+
+                         '<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
+                          '<span class="dropdown-text" id="api-request">等于（1）</span>'+
+                          '<span class="caret"></span>'+
+                          '</button>'+
+                          '<ul class="dropdown-menu">'+
+                          '<li><a data-type="1">等于（1）</a></li>'+
+                          '<li><a data-type="2">不等于（2）</a></li>'+
+                          '<li><a data-type="3">大于（3）</a></li>'+
+                          '<li><a data-type="4">大于等于（4）</a></li>'+
+                          '<li><a data-type="5">小于（5）</a></li>'+
+                          '<li><a data-type="6">小于等于（6）</a></li>'+
+                          '<li><a data-type="7">前缀查询（7）</a></li>'+
+                          '<li><a data-type="8">包含查询（8）</a></li>'+
+                          '<li><a data-type="9">不包含查询（9）</a></li>'+
+                          '<li><a data-type="0">空值查询（0）</a></li>'+
+                          '</ul>'+
+                          '</div>'+
+                          '</div>';
+
+        //list api 内容
+        var editParaContent = '<p>limit<span class="ml-10 desc">[ 限定返回数量</span> ]<input type="text" class="para-remark ml-10" name="limit" style="width:150px;" placeholder="测试值" value="1000"></p>'+
+          '<p>skip<span class="ml-10 desc">[ 跳过数量</span> ]<input type="text" name="skip" class="para-remark ml-10" style="width:150px;" placeholder="测试值" value="0"></p>'+
+          '<p>asc<span class="ml-10 desc">[ 升序排列</span> ] <input type="text" name="asc" class="para-remark ml-10" style="width:150px;" placeholder="字段名"></p>'+
+          '<p>desc<span class="ml-10 desc">[ 降序排列</span> ] <input type="text" name="desc" class="para-remark ml-10" style="width:150px;" placeholder="字段名"></p>'+
+          '<p class="color-r"><span>[ 搜索条件</span> ] 搜索字段名：{type："逻辑值",value:"搜索字段值"}</p><p class="color-r">eg: name:{type:1,value:"测试"}</p>'+
+          '<div class="search-content"><div class="search-list">'+getSelectText()+'</div></div><div class="mt-20"><button type="button" class="btn btn-primary search-add">添加</button></div></div>';
+
+        paraContent = '<p>请求参数</p><div class="code-content">'+editParaContent+'</div>';
+        var section = '<section class="sec-content" id="'+data[i].objectId+'list">'+
+        '<h1 class="sec-title">list</h1>'+
+        '<p>URI:</p>'+
+        '<div class="code-content api-url">'+location.origin+'/'+data[i].table_name+'/list</div>'+
+        '<p>HTTP请求方式</p><div class="code-content api-request">GET</div>'+
+        paraContent+
+        '<p><span class="btn btn-success make">测试接口</span></p>'+
+        '<div class="code-content api-result"></div>'+
+        '<div class="btn-content" data-id="'+data[i].objectId+'">'+
+        '</div>'+
+        '</section>';
+        $(".api-content").append(section);
+
+        //detail api 内容
+        var paraContent = '<p>请求参数</p><div class="code-content"><p>id<span class="ml-10 desc">[ 数据ObjectId</span> ]<input type="text" class="para-remark ml-10" name="id" style="width:150px;" placeholder="测试值"> <span class="ml-10 color-r">必须</span></p></div>';
+        var section = '<section class="sec-content" id="'+data[i].objectId+'detail">'+
+          '<h1 class="sec-title">detail</h1>'+
+          '<p>URI:</p>'+
+          '<div class="code-content api-url">'+location.origin+'/'+data[i].table_name+'/detail</div>'+
+          '<p>HTTP请求方式</p><div class="code-content api-request">GET</div>'+
+          paraContent+
+          '<p><span class="btn btn-success make">测试接口</span></p>'+
+          '<div class="code-content api-result"></div>'+
+          '<div class="btn-content" data-id="'+data[i].objectId+'">'+
+          '</div>'+
+          '</section>';
+          $(".api-content").append(section);
+        }
+        $(".menu").empty().append(menu);
+  }
+
+  function getSelectText(){
+    var selectText = '<div class="select-box" style="display:inline-block;margin:0 15px;">'+
+                         '<div class="btn-group">'+
+                         '<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
+                          '<span class="dropdown-text" data-type="1">等于（1）</span>'+
+                          '<span class="caret"></span>'+
+                          '</button>'+
+                          '<ul class="dropdown-menu">'+
+                          '<li><a data-type="1">等于（1）</a></li>'+
+                          '<li><a data-type="2">不等于（2）</a></li>'+
+                          '<li><a data-type="3">大于（3）</a></li>'+
+                          '<li><a data-type="4">大于等于（4）</a></li>'+
+                          '<li><a data-type="5">小于（5）</a></li>'+
+                          '<li><a data-type="6">小于等于（6）</a></li>'+
+                          '<li><a data-type="7">前缀查询（7）</a></li>'+
+                          '<li><a data-type="8">包含查询（8）</a></li>'+
+                          '<li><a data-type="0">空值查询（0）</a></li>'+
+                          '</ul>'+
+                          '</div>'+
+                          '</div>';
+      var search_li = '<div class="search-li"><input type="text" name="apibuild_search_name" class="para-remark apibuild_search_name" style="width:100px;" placeholder="字段名">'+selectText+'<input type="text" name="apibuild_search_value" class="para-remark ml-10 apibuild_search_value" style="width:100px;" placeholder="对应值"><div class="iconfont icon-x"></div>';
+      return search_li;
+  }
+
+  $(document).on("click",".dropdown-menu li",function(){
+    //判断点击的选项
+    var type = $(this).children("a").attr("data-type");
+    //将父元素中的显示框设置为当前值
+    $(this).parent().parent().find(".dropdown-text").text($(this).text());
+    console.log(type);
+    $(this).parent().parent().find(".dropdown-text").attr("data-type",type);
+  })
+
+  //点击添加
+  $(document).on("click",".search-add",function(){
+    //获取当前需要添加上去的父元素
+    $search_list = $(this).parent().parent().find(".search-list");
+    $search_list.append(getSelectText());
+  })
+
+  //获取生成结果
+  $(document).on("click",".make",function(){
+    //获取url
+    var id = $(this).parent().parent().attr("id");
+    var $result = $("#"+id+" .api-result");
+    var url = $("#"+id+" .api-url").text();
+    var type = $("#"+id+" .api-request").text();
+    var data = {};
+
+    try {
+      $("#"+id+" input").each(function(){
+
+        if($(this).attr("name")=="apibuild_search_name" || $(this).attr("name")=="apibuild_search_value"){
+          return;
+        }
+
+        if($(this).next(".color-r").text() && !$(this).val()){
+          var desc = $(this).parent().find(".desc").text().split("[")[1];
+          console.log(desc);
+          throw desc;
+          return false;
+        }
+        if($(this).val()){
+          data[$(this).attr("name")] = $(this).val();
+        }
+      })
+    }catch(err){
+      layer.msg("缺少"+err, {icon: 2});
+      return;
+    }
+
+    //遍历search-li
+    $("#"+id+" .search-li").each(function(){
+      var apibuild_search_name = $(this).children(".apibuild_search_name").val();
+      //获取搜索类型
+      var type = $(this).children(".select-box").find(".dropdown-text").attr("data-type");
+      var apibuild_search_value = $(this).children(".apibuild_search_value").val();
+      console.log(type);
+      //对于参数不全的数据不保存
+      if(type && apibuild_search_name && apibuild_search_value){
+        type = parseInt(type);
+        data[apibuild_search_name] = {
+          type  : type,
+          value : apibuild_search_value
+        }
+      } 
+    })
+    console.log(data);
+
+    $result.empty().append('<div id="" class="layui-layer-content layui-layer-loading0"></div></div>');
+
+    sendQuery(url,type,data,{
+      success:function(result){
+        //获取当前项目名称
+        var data = result.data;
+        console.log(data);
+        layer.msg('获取成功', {icon: 1});
+        var resultView = '<p>{</p>'+
+                          '<p class="ml-20">"code":'+result.code+",</p>"+
+                          '<p class="ml-20">"message":'+result.message+",</p>"+
+                          '<p class="ml-20">"data":'+JSON.stringify(result.data)+"</p>"+
+                          '<p>}</p>';
+        $result.empty().append(resultView);
+      },
+      error:function(error){
+        layer.msg(error.message, {icon: 2});
+      }
+    })
+  })
+
+  $(document).on("click",".btn-delete",function(){
+      var that = this;
+      //询问框
+      layer.confirm('确定要删除这个表吗？', {
+          btn: ['删除','取消'] //按钮
+      }, function(){
+//            layer.msg('的确很重要', {icon: 1});
+          // var id = $(that).parent().attr("data-id");
+          layer.closeAll();
+          layer.load(0, {shade: false});
+          var id = $("#table-id").val();
+          var data = {id:id};
+          var url = "/api/delete";
+          var type = "GET";
+          sendQuery(url,type,data,{
+              success:function(result){
+                  //获取当前项目名称
+                  var data = result.data;
+                  layer.closeAll();
+                  layer.msg('删除成功', {icon: 1});
+                  setTimeout(function(){
+                    window.location.reload();
+                  }, 500);
+              },
+              error:function(error){
+                layer.closeAll();
+                layer.msg(error.message, {icon: 2});
+              }
+          })
+      }, function(){
+        //取消
+      });
+
+      $(".layui-layer-btn").css({
+          "font-size":"15px"
+      })
+      $(".layui-layer-msg").css({
+          "width":"180px;"
+      })
+  })
+
+  $(document).on("click",".bold.title",function(){
+      //获取id
+      var id = $(this).attr("data-id");
+      $("li").removeClass("apiactive");
+      $(this).addClass("apiactive");
+      //遍历
+      if(id){
+          for(var i = 0; i < apiList.length;i++){
+            if(apiList[i].objectId == id){
+              //设置id
+              $("#table-id").val(id);
+              $(".btn-delete").show();
+              //设置为更改
+              $(".create").text("更改");
+              //获取表名称
+              var table_name = apiList[i].table_name;
+              $("#table-name").val(table_name);
+              $("#table-name").attr("disabled","true");
+              //描述:
+              var table_desc = apiList[i].table_desc;
+              $("#table-desc").val(table_desc);
+
+              var table_para = apiList[i].table_para;
+              if(table_para.length){
+                $(".parameter-list").empty();
+              }
+              for(var k = 0; k < table_para.length; k++){
+                var li = '<div class="parameter-li mt-20">'+
+                          '<input type="text" class="para-name"  style="width:200px;margin-right: 6px" placeholder="参数名" value="'+table_para[k].para_name+'">'+
+                          '<input type="text" class="para-desc"  style="width:200px;margin-right: 6px" placeholder="参数描述" value="'+table_para[k].para_desc+'">'+
+                          '<div class="check">'+
+                          '<input type="checkbox" class="para-must" '+(table_para[k].para_must ? "checked":"")+'>'+
+                          '<label for="input-1">必须参数</label>'+
+                          '</div>'+
+                          '<div class="check ml-10">'+
+                          '<input type="checkbox" disabled class="para-number" '+(table_para[k].para_number ? "checked":"")+'>'+
+                          '<label for="input-2">是否是Number型</label>'+
+                          '</div>'+
+                          '<div class="iconfont icon-x"></div>'+
+                          '</div>';
+                console.log(li);
+                $(".parameter-list").append(li);
+                $('.check input').iCheck({
+                  checkboxClass: 'icheckbox_square-blue',
+                  radioClass: 'iradio-blue'
+                });
+              }
+            }
+          }
+          $(".sec-content").hide();
+          $("#apimanage_add").show();
+      }
+  })
+
+  //提交表单
+  // $(document).on("click","#create",function(){
+  //   //获取所有表单数据
+  //   var data = $("#form").serializeArray();
+  //   var url = "/app/create";
+  //   var type = "GET";
+  //   sendQuery(url,type,data,{
+  //     success:function(result){
+  //       console.log(result);
+  //       var data = result.data;
+  //       alert("创建成功");
+  //       window.location.reload();
+  //     },
+  //     error:function(error){
+  //       alert(error.message);
+  //       console.log(error);
+  //     }
+  //   })
+  // })
+</script>
+</html>
