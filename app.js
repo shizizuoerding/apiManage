@@ -72,10 +72,12 @@ app.use(express.static('public'));
 // 设置默认超时时间
 app.use(timeout('15s'));
 
+var APP_ID = 'dGj3Ceel7RLEePs3dB3X2uzj-gzGzoHsz';
+var APP_KEY = 'UmfDDctiejjWq0WC7siPycUO';
+
 AV.init({
-  appId: process.env.LEANCLOUD_APP_ID || 'CTTCadj1G6hJrLxVcuifndum-gzGzoHsz',
-  appKey: process.env.LEANCLOUD_APP_KEY || 'mGpXUSvV5JOOARtDmzBubFhj',
-  masterKey: process.env.LEANCLOUD_APP_MASTER_KEY || 'o2NRqFyi8vtLzxDA3EsALxK5'
+  appId: APP_ID,
+  appKey: APP_KEY
 });
 
 // 加载云引擎中间件
